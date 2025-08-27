@@ -1,20 +1,11 @@
 class Table {
-  constructor(cols = []) {
+  constructor(cols = [], data) {
     this.cols = cols;
     this.rows = [];
     this.sortCache = "";
     this.editing = true;
-  }
-  set data(data) {
-    if (Array.isArray(data)) {
-      this.rows = data.map((item) => new TableRow(item, this.cols));
-    } else {
-      this.rows.push(new TableRow(data, this.cols));
-    }
-  }
-
-  get data() {
-    return this.rows.map((row) => row.data);
+    this.data = data;
+    this.rows = data.map((item) => new TableRow(item, this.cols));
   }
 
   render(data = this.rows, search = ["", "", "", ""]) {
@@ -151,7 +142,7 @@ class Table {
   }
 }
 cols = ["name", "year", "price", "rate"];
-let table = new Table(cols);
+
 let newData = [
   {
     id: 1,
@@ -259,6 +250,7 @@ let newData = [
     rate: "7.9",
   },
 ];
-table.data = newData;
+let table = new Table(cols, newData);
+// table.data = newData;
 
 table.render();
