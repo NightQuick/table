@@ -1,4 +1,6 @@
-class TableRow {
+import { createElement } from "https://esm.sh/react@18.2.0";
+import { createRoot } from "https://esm.sh/react-dom@18.2.0/client";
+export class TableRow {
   constructor(data, columns) {
     this.id = data.id;
     this.data = data;
@@ -6,16 +8,31 @@ class TableRow {
   }
 
   render() {
-    let html = `<tr class="row" id="row-${this.id}">`;
+    let row = document.createElement("tr");
+    row.class = row;
+    row.id = "row" + "-" + this.id;
+
     for (let col of this.columns) {
       if (col == "id") continue;
-      html += `<td id="${col}-${this.id}">${this.data[col]}`;
+      let tableData = document.createElement("td");
+      tableData.id = col + "-" + this.id;
+      tableData.textContent = this.data[col];
+
       if (col == "name") {
-        html += `<button class="edit" id=buttonEdit${this.id}>e</button><button class="x" id=buttonX${this.id}></button></td>`;
-      } else html += `</td>`;
+        let buttonEdit = document.createElement("button");
+        buttonEdit.className = "edit";
+        buttonEdit.id = "buttonEdit" + this.id;
+        let buttonX = document.createElement("button");
+        buttonX.className = "x";
+        buttonX.id = "buttonX" + this.id;
+        let buttons = [buttonEdit, buttonX];
+        buttons.forEach((button) => {
+          tableData.appendChild(button);
+        });
+      }
+      row.appendChild(tableData);
     }
-    html += `</tr>`;
-    return html;
+    return row;
   }
 
   getValue(columnName) {
@@ -41,13 +58,26 @@ class TableRow {
     if (valA == valB) return 0;
   }
   edit(rowToEditId) {
-    let html = ``;
+    let row = document.getElementById(`row-${rowToEditId}`);
     for (let col of this.columns) {
       let text = document.getElementById(col + "-" + rowToEditId).textContent;
       text = text.replace("ex", "");
-      html += `<td><textarea id="${col}-${rowToEditId}">${text}</textarea></td>`;
+      let textCell = document.getElementById(`${col}-${rowToEditId}`),
+        textBox = document.createElement("textarea");
+
+      textCell.innerHTML = "";
+      textCell.id = "";
+      textBox.id = col + "-" + rowToEditId;
+      textBox.textContent = text;
+
+      textCell.appendChild(textBox);
+      row.appendChild(textCell);
     }
-    html += `<td><button id="saveEdit">Coxpaнить</button></td>`;
-    document.getElementById(`row-${rowToEditId}`).innerHTML = html;
+    let Cell = document.createElement("cd"),
+      saveButton = document.createElement("button");
+    saveButton.id = "saveEdit";
+    saveButton.textContent = "Сохранить";
+    Cell.appendChild(saveButton);
+    row.appendChild(Cell);
   }
 }

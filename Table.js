@@ -1,3 +1,8 @@
+import { TableRow } from "./Row.js";
+import { createElement } from "https://esm.sh/react@18.2.0";
+import { createRoot } from "https://esm.sh/react-dom@18.2.0/client";
+// import { TableRow } from "Row.js";
+
 class Table {
   constructor(cols = [], data) {
     this.cols = cols;
@@ -9,43 +14,61 @@ class Table {
   }
 
   render(data = this.rows, search = ["", "", "", ""]) {
-    let html = ``;
-    html += `<button id="addNew">Добавить</button>`;
-    html += `<table id="table">`;
-    html += `<thead><tr>`;
-    for (let col of this.cols) {
-      html += `<th class="col" id="${col}">${col}</th>`;
-    }
-    html += `</tr>`;
+    //Отрисовка таблицы
+    document.body.innerHTML = "";
+    let table = document.createElement("table"),
+      newRowButton = document.createElement("button"),
+      tableHead = document.createElement("thead"),
+      headRow = document.createElement("tr"),
+      searchRow = document.createElement("tr"),
+      coldata = document.createElement("td"),
+      tableBody = document.createElement("tbody"),
+      tableFoot = document.createElement("tfoot");
 
-    html += `<tr>`;
+    (newRowButton.id = "addNew"), (newRowButton.textContent = "добавить");
+    document.body.appendChild(newRowButton);
+    document.body.appendChild(table);
+    table.appendChild(tableHead);
+    table.appendChild(tableBody);
+    table.appendChild(tableFoot);
+
+    tableHead.appendChild(headRow);
+    tableHead.appendChild(searchRow);
+
     for (let i = 0; i < this.cols.length; i++) {
-      html += `<th><textarea class="search" id=${this.cols[i]}Search>${search[i]}</textarea></th>`;
+      let headCol = document.createElement("th");
+      headCol.class = "col";
+      headCol.id = this.cols[i];
+      headCol.textContent = this.cols[i];
+      headRow.appendChild(headCol);
+
+      let searchCell = document.createElement("th");
+      let searchTextBox = document.createElement("textarea");
+      searchTextBox.class = "search";
+      searchTextBox.id = `${this.cols[i]}Search`;
+      searchTextBox.textContent = search[i];
+      searchCell.appendChild(searchTextBox);
+      searchRow.appendChild(searchCell);
     }
-    html += `</tr></thead>`;
 
     this.rows.sort((a, b) => TableRow.compare(a, b, "id"));
     for (let i = 0; i < this.rows.length; i++) {
       this.rows[i]["id"] = i + 1;
     }
 
-    html += `<tbody>`;
-
     for (let row of data) {
-      html += row.render();
+      tableBody.appendChild(row.render());
     }
+    //
 
-    html += `</tbody>`;
-
-    html += `<tfoot id="add"></tfoot>`;
-
-    let body = document.getElementById("body");
-    body.innerHTML = html;
+    //Эвенты
+    //Сортирвка столбцов
     for (let col of cols) {
       document
         .getElementById(col)
         .addEventListener("click", () => this.sorting(col));
     }
+    //Поиск по столбцам
     let timer;
     document.addEventListener("keydown", function () {
       clearTimeout(timer);
@@ -62,14 +85,26 @@ class Table {
         );
       });
     }
+
+    //Создание новой строки
     document.getElementById("addNew").addEventListener("click", () => {
-      html = `<tr>`;
+      let row = document.createElement("tr");
+      row.id = "add";
       for (let col of this.cols) {
-        html += `<td><textarea id="new${col}"></textarea></td>`;
+        let newDataCell = document.createElement("td"),
+          newDataTextBox = document.createElement("textarea");
+        newDataTextBox.id = "new" + col;
+        newDataCell.appendChild(newDataTextBox);
+        row.appendChild(newDataCell);
       }
-      html += `<td><button id="saveButton">Сохранить</button></td>`;
-      html += `</tr>`;
-      document.getElementById("add").innerHTML = html;
+      let saveButton = document.createElement("button"),
+        buttonCell = document.createElement("td");
+      saveButton.id = "saveButton";
+      saveButton.textContent = "Сохранить";
+      buttonCell.appendChild(saveButton);
+      row.appendChild(buttonCell);
+      tableFoot.appendChild(row);
+
       document.getElementById("saveButton").addEventListener("click", () => {
         this.addRow();
       });
@@ -141,7 +176,7 @@ class Table {
     });
   }
 }
-cols = ["name", "year", "price", "rate"];
+let cols = ["name", "year", "price", "rate"];
 
 let newData = [
   {
