@@ -1,7 +1,4 @@
 import { TableRow } from "./Row.js";
-import { createElement } from "https://esm.sh/react@18.2.0";
-import { createRoot } from "https://esm.sh/react-dom@18.2.0/client";
-// import { TableRow } from "Row.js";
 
 class Table {
   constructor(cols = [], data) {
@@ -16,41 +13,18 @@ class Table {
   render(data = this.rows, search = ["", "", "", ""]) {
     //Отрисовка таблицы
     document.body.innerHTML = "";
-    let table = document.createElement("table"),
-      newRowButton = document.createElement("button"),
-      tableHead = document.createElement("thead"),
-      headRow = document.createElement("tr"),
-      searchRow = document.createElement("tr"),
-      coldata = document.createElement("td"),
-      tableBody = document.createElement("tbody"),
-      tableFoot = document.createElement("tfoot");
 
+    let newRowButton = document.createElement("button");
     (newRowButton.id = "addNew"), (newRowButton.textContent = "добавить");
     document.body.appendChild(newRowButton);
+
+    let table = document.createElement("table");
     document.body.appendChild(table);
-    table.appendChild(tableHead);
+
+    this.renderCol(search, table);
+
+    let tableBody = document.createElement("tbody");
     table.appendChild(tableBody);
-    table.appendChild(tableFoot);
-
-    tableHead.appendChild(headRow);
-    tableHead.appendChild(searchRow);
-
-    for (let i = 0; i < this.cols.length; i++) {
-      let headCol = document.createElement("th");
-      headCol.class = "col";
-      headCol.id = this.cols[i];
-      headCol.textContent = this.cols[i];
-      headRow.appendChild(headCol);
-
-      let searchCell = document.createElement("th");
-      let searchTextBox = document.createElement("textarea");
-      searchTextBox.class = "search";
-      searchTextBox.id = `${this.cols[i]}Search`;
-      searchTextBox.textContent = search[i];
-      searchCell.appendChild(searchTextBox);
-      searchRow.appendChild(searchCell);
-    }
-
     this.rows.sort((a, b) => TableRow.compare(a, b, "id"));
     for (let i = 0; i < this.rows.length; i++) {
       this.rows[i]["id"] = i + 1;
@@ -86,6 +60,8 @@ class Table {
       });
     }
 
+    let tableFoot = document.createElement("tfoot");
+    table.appendChild(tableFoot);
     //Создание новой строки
     document.getElementById("addNew").addEventListener("click", () => {
       let row = document.createElement("tr");
@@ -109,17 +85,45 @@ class Table {
         this.addRow();
       });
     });
+    //Удаление строки
     document.querySelectorAll(".x").forEach((button) => {
       button.addEventListener("click", () => {
         this.removeRow(button);
       });
     });
-
+    //Изменение строки
     document.querySelectorAll(".edit").forEach((button) => {
       button.addEventListener("click", () => {
         if (this.editing) this.editRow(button);
       });
     });
+  }
+  renderCol(search, table) {
+    let tableHead = document.createElement("thead");
+    table.appendChild(tableHead);
+
+    let headRow = document.createElement("tr");
+    tableHead.appendChild(headRow);
+
+    let searchRow = document.createElement("tr");
+    tableHead.appendChild(searchRow);
+
+    for (let i = 0; i < this.cols.length; i++) {
+      let headCol = document.createElement("th");
+      headCol.class = "col";
+      headCol.id = this.cols[i];
+      headCol.textContent = this.cols[i];
+      headRow.appendChild(headCol);
+
+      let searchCell = document.createElement("th");
+      let searchTextBox = document.createElement("textarea");
+      searchTextBox.class = "search";
+      searchTextBox.id = `${this.cols[i]}Search`;
+      searchTextBox.textContent = search[i];
+
+      searchCell.appendChild(searchTextBox);
+      searchRow.appendChild(searchCell);
+    }
   }
 
   sorting(sortBy) {
