@@ -1,8 +1,12 @@
 import { TableRow } from "./Row.js";
 
 class Table {
-  constructor(cols = [], data) {
-    this.cols = cols;
+  constructor(headers = [], data) {
+    this.cols = headers.map((col) => {
+      if (!("sortable" in col) || col.sortable == true) {
+        return col.key;
+      }
+    });
     this.rows = [];
     this.sortCache = "";
     this.editing = true;
@@ -37,7 +41,7 @@ class Table {
 
     //Эвенты
     //Сортирвка столбцов
-    for (let col of cols) {
+    for (let col of this.cols) {
       document
         .getElementById(col)
         .addEventListener("click", () => this.sorting(col));
@@ -47,7 +51,7 @@ class Table {
     document.addEventListener("keydown", function () {
       clearTimeout(timer);
     });
-    for (let col of cols) {
+    for (let col of this.cols) {
       let textBox = document.getElementById(col + "Search");
 
       textBox.addEventListener("keyup", () => {
@@ -108,22 +112,25 @@ class Table {
     let searchRow = document.createElement("tr");
     tableHead.appendChild(searchRow);
 
-    for (let i = 0; i < this.cols.length; i++) {
+    this.cols.forEach((col, i) => {
       let headCol = document.createElement("th");
       headCol.class = "col";
-      headCol.id = this.cols[i];
-      headCol.textContent = this.cols[i];
+      headCol.id = col;
+      headCol.textContent = col;
       headRow.appendChild(headCol);
 
       let searchCell = document.createElement("th");
       let searchTextBox = document.createElement("textarea");
       searchTextBox.class = "search";
-      searchTextBox.id = `${this.cols[i]}Search`;
+      searchTextBox.id = `${col}Search`;
       searchTextBox.textContent = search[i];
 
       searchCell.appendChild(searchTextBox);
       searchRow.appendChild(searchCell);
-    }
+    });
+    // for (let i = 0; i < this.cols.length; i++) {
+
+    // }
   }
 
   sorting(sortBy) {
@@ -180,116 +187,7 @@ class Table {
     });
   }
 }
-let cols = ["name", "year", "price", "rate"];
-
-let newData = [
-  {
-    id: 1,
-    name: "Minecraft",
-    year: "2011",
-    price: "26.95$",
-    rate: "9.3",
-  },
-  {
-    id: 2,
-    name: "Counter-Strike 2",
-    year: "2023",
-    price: "0",
-    rate: "7.8",
-  },
-  {
-    id: 3,
-    name: "Grand Theft Auto V",
-    year: "2013",
-    price: "29.99$",
-    rate: "9.0",
-  },
-  {
-    id: 4,
-    name: "The Witcher 3: Wild Hunt",
-    year: "2015",
-    price: "39.99$",
-    rate: "9.7",
-  },
-  {
-    id: 5,
-    name: "Red Dead Redemption 2",
-    year: "2018",
-    price: "59.99$",
-    rate: "9.5",
-  },
-  {
-    id: 6,
-    name: "Elden Ring",
-    year: "2022",
-    price: "59.99$",
-    rate: "9.3",
-  },
-  {
-    id: 7,
-    name: "Cyberpunk 2077",
-    year: "2020",
-    price: "49.99$",
-    rate: "7.5",
-  },
-  {
-    id: 8,
-    name: "Baldur's Gate 3",
-    year: "2023",
-    price: "59.99$",
-    rate: "9.8",
-  },
-  {
-    id: 9,
-    name: "Dota 2",
-    year: "2013",
-    price: "0",
-    rate: "8.5",
-  },
-  {
-    id: 10,
-    name: "Apex Legends",
-    year: "2019",
-    price: "0",
-    rate: "8.0",
-  },
-  {
-    id: 11,
-    name: "Fortnite",
-    year: "2017",
-    price: "0",
-    rate: "8.2",
-  },
-  {
-    id: 12,
-    name: "The Legend of Zelda: Breath of the Wild",
-    year: "2017",
-    price: "59.99$",
-    rate: "9.7",
-  },
-  {
-    id: 13,
-    name: "God of War (2018)",
-    year: "2018",
-    price: "19.99$",
-    rate: "9.5",
-  },
-  {
-    id: 14,
-    name: "Stardew Valley",
-    year: "2016",
-    price: "14.99$",
-    rate: "9.2",
-  },
-  {
-    id: 15,
-    name: "Valorant",
-    year: "2020",
-    price: "0",
-    rate: "7.9",
-  },
-];
-let table = new Table(cols, newData);
-// table.data = newData;
-
+// let cols = ["name", "year", "price", "rate"];
+import { headers, data } from "./main.js";
+let table = new Table(headers, data);
 table.render();
