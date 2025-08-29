@@ -5,18 +5,21 @@ export class TableRow {
     this.id = data.id;
     this.data = data;
     this.columns = columns;
+    const number = data.id;
   }
 
   render() {
     let row = document.createElement("tr");
-    row.class = row;
+    row.className = "row";
     row.id = "row" + "-" + this.id;
 
     for (let col of this.columns) {
-      if (col == "id") continue;
       let tableData = document.createElement("td");
       tableData.id = col + "-" + this.id;
       tableData.textContent = this.data[col];
+      if (this.data[col] == undefined) {
+        tableData.textContent = this.id;
+      }
 
       if (col == "name") {
         let buttonEdit = document.createElement("button");
@@ -45,6 +48,7 @@ export class TableRow {
 
   contains(searchBy, searchStr) {
     if (!searchStr) return true;
+    if (searchBy == undefined) searchBy = this.id;
     const value = this.getValue(searchBy);
     return (
       value && value.toString().toLowerCase().includes(searchStr.toLowerCase())
@@ -60,6 +64,7 @@ export class TableRow {
   edit(rowToEditId) {
     let row = document.getElementById(`row-${rowToEditId}`);
     for (let col of this.columns) {
+      if (col == undefined) continue;
       let text = document.getElementById(col + "-" + rowToEditId).textContent;
       text = text.replace("ex", "");
       let textCell = document.getElementById(`${col}-${rowToEditId}`),

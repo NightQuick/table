@@ -2,16 +2,22 @@ import { TableRow } from "./Row.js";
 
 class Table {
   constructor(headers = [], data) {
-    this.cols = headers.map((col) => {
-      if (!("sortable" in col) || col.sortable == true) {
-        return col.key;
-      }
-    });
+    this.headers = headers;
     this.rows = [];
     this.sortCache = "";
     this.editing = true;
     this.data = data;
-    this.rows = data.map((item) => new TableRow(item, this.cols));
+    let columns;
+    this.rows = data.map(
+      (item) =>
+        new TableRow(
+          item,
+          this.headers.map((cols) => {
+            if ("sortable" in cols) {
+            } else return cols.key;
+          })
+        )
+    );
   }
 
   render(data = this.rows, search = ["", "", "", ""]) {
@@ -41,18 +47,20 @@ class Table {
 
     //Эвенты
     //Сортирвка столбцов
-    for (let col of this.cols) {
-      document
-        .getElementById(col)
-        .addEventListener("click", () => this.sorting(col));
+    for (let col of this.headers) {
+      if (col.sortable || "sortable" in col == false) {
+        document
+          .getElementById(col.key)
+          .addEventListener("click", () => this.sorting(col.key));
+      }
     }
     //Поиск по столбцам
     let timer;
     document.addEventListener("keydown", function () {
       clearTimeout(timer);
     });
-    for (let col of this.cols) {
-      let textBox = document.getElementById(col + "Search");
+    for (let col of this.headers) {
+      let textBox = document.getElementById(col.key + "Search");
 
       textBox.addEventListener("keyup", () => {
         timer = setTimeout(
@@ -70,11 +78,16 @@ class Table {
     document.getElementById("addNew").addEventListener("click", () => {
       let row = document.createElement("tr");
       row.id = "add";
-      for (let col of this.cols) {
-        let newDataCell = document.createElement("td"),
-          newDataTextBox = document.createElement("textarea");
-        newDataTextBox.id = "new" + col;
-        newDataCell.appendChild(newDataTextBox);
+      for (let col of this.headers) {
+        let newDataCell = document.createElement("td");
+        if (col.key == undefined) {
+          newDataCell.textContent = 0;
+        } else {
+          let newDataTextBox = document.createElement("textarea");
+          newDataCell.appendChild(newDataTextBox);
+          newDataTextBox.id = "new" + col.key;
+        }
+
         row.appendChild(newDataCell);
       }
       let saveButton = document.createElement("button"),
@@ -112,17 +125,17 @@ class Table {
     let searchRow = document.createElement("tr");
     tableHead.appendChild(searchRow);
 
-    this.cols.forEach((col, i) => {
+    this.headers.forEach((col, i) => {
       let headCol = document.createElement("th");
       headCol.class = "col";
-      headCol.id = col;
-      headCol.textContent = col;
+      headCol.id = col.key;
+      headCol.textContent = col.label;
       headRow.appendChild(headCol);
 
       let searchCell = document.createElement("th");
       let searchTextBox = document.createElement("textarea");
       searchTextBox.class = "search";
-      searchTextBox.id = `${col}Search`;
+      searchTextBox.id = `${col.key}Search`;
       searchTextBox.textContent = search[i];
 
       searchCell.appendChild(searchTextBox);
@@ -151,18 +164,35 @@ class Table {
     const searchedData = this.rows.filter((row) =>
       row.contains(searchBy, searchStr)
     );
-
-    let search = this.cols.map((col) => (col === searchBy ? searchStr : ""));
+    let search;
+    if (searchBy == "undefined") {
+      search = [searchStr, "", "", "", ""];
+    } else {
+      search = this.headers.map((col) =>
+        col.key == searchBy ? searchStr : ""
+      );
+    }
 
     this.render(searchedData, search);
   }
   addRow() {
     let item = { id: 0 };
-    for (let col of this.cols) {
-      item[col] = document.getElementById(`new${col}`).value;
+    for (let col of this.headers) {
+      if (col.key == undefined) {
+        continue;
+      }
+      item[col.key] = document.getElementById(`new${col.key}`).value;
     }
     document.getElementById("add").innerHTML = "";
-    this.rows.push(new TableRow(item, this.cols));
+    this.rows.push(
+      new TableRow(
+        item,
+        this.headers.map((cols) => {
+          if ("sortable" in cols) {
+          } else return cols.key;
+        })
+      )
+    );
     this.render();
   }
   removeRow(button) {
@@ -178,10 +208,22 @@ class Table {
     this.rows[editingRowId].edit(editingRowId);
     document.getElementById("saveEdit").addEventListener("click", () => {
       let item = { id: editingRowId };
-      for (let col of this.cols) {
-        item[col] = document.getElementById(col + "-" + editingRowId).value;
+      for (let col of this.headers) {
+        item[col.key] = document.getElementById(
+          col.key + "-" + editingRowId
+        ).value;
       }
-      this.rows.splice(editingRowId - 1, 1, new TableRow(item, this.cols));
+      this.rows.splice(
+        editingRowId - 1,
+        1,
+        new TableRow(
+          item,
+          this.headers.map((cols) => {
+            if ("sortable" in cols) {
+            } else return cols.key;
+          })
+        )
+      );
       this.render(this.rows);
       this.editing = true;
     });
