@@ -1,42 +1,51 @@
-import { createElement } from "https://esm.sh/react@18.2.0";
-import { createRoot } from "https://esm.sh/react-dom@18.2.0/client";
 export class TableRow {
   constructor(data, columns) {
     this.id = data.id;
     this.data = data;
     this.columns = columns;
-    const number = data.id;
+    // const number = data.id;
   }
 
-  render() {
-    let row = document.createElement("tr");
-    row.className = "row";
-    row.id = "row" + "-" + this.id;
-
-    for (let col of this.columns) {
-      let tableData = document.createElement("td");
-      tableData.id = col + "-" + this.id;
-      tableData.textContent = this.data[col];
-      if (this.data[col] == undefined) {
-        tableData.textContent = this.id;
-      }
-
-      if (col == "name") {
-        let buttonEdit = document.createElement("button");
-        buttonEdit.className = "edit";
-        buttonEdit.id = "buttonEdit" + this.id;
-        let buttonX = document.createElement("button");
-        buttonX.className = "x";
-        buttonX.id = "buttonX" + this.id;
-        let buttons = [buttonEdit, buttonX];
-        buttons.forEach((button) => {
-          tableData.appendChild(button);
-        });
-      }
-      row.appendChild(tableData);
-    }
-    return row;
+  render(rowTemplate) {
+    let template = rowTemplate.content.cloneNode(true);
+    let row = rowTemplate.firstElementChild;
+    row.id = `row-${this.id}`;
+    let td = row.querySelectorAll("td"); //, id=,
+    this.columns.forEach(col, (i) => {
+      td[i].id = `${col}-${this.id}`;
+      td[i].textContent = this.data[col];
+    });
   }
+
+  // render() {
+  //   let row = document.createElement("tr");
+  //   row.className = "row";
+  //   row.id = "row" + "-" + this.id;
+
+  //   for (let col of this.columns) {
+  //     let tableData = document.createElement("td");
+  //     tableData.id = col + "-" + this.id;
+  //     tableData.textContent = this.data[col];
+  //     if (this.data[col] == undefined) {
+  //       tableData.textContent = this.id;
+  //     }
+
+  //     if (col == "name") {
+  //       let buttonEdit = document.createElement("button");
+  //       buttonEdit.className = "edit";
+  //       buttonEdit.id = "buttonEdit" + this.id;
+  //       let buttonX = document.createElement("button");
+  //       buttonX.className = "x";
+  //       buttonX.id = "buttonX" + this.id;
+  //       let buttons = [buttonEdit, buttonX];
+  //       buttons.forEach((button) => {
+  //         tableData.appendChild(button);
+  //       });
+  //     }
+  //     row.appendChild(tableData);
+  //   }
+  //   return row;
+  // }
 
   getValue(columnName) {
     return this.data[columnName];

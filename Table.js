@@ -18,11 +18,27 @@ class Table {
           })
         )
     );
+    this.template = this.createTemplate();
+  }
+
+  createTemplate() {
+    let template = document.createElement("template");
+    template.id = "template";
+    let rowTemplate = document.createElement("tr");
+    rowTemplate.className = "row"; //
+    template.appendChild(rowTemplate);
+    for (let col of this.headers) {
+      let td = document.createElement("td");
+      td.textContent = "-";
+      rowTemplate.appendChild(td);
+      //, id=`${col}-${this.id}`,textContent=this.data[col]
+    }
+    return template;
   }
 
   render(data = this.rows, search = ["", "", "", ""]) {
     //Отрисовка таблицы
-    document.body.innerHTML = "";
+    document.body.innerHTML = this.template;
 
     let newRowButton = document.createElement("button");
     (newRowButton.id = "addNew"), (newRowButton.textContent = "добавить");
@@ -41,7 +57,7 @@ class Table {
     }
 
     for (let row of data) {
-      tableBody.appendChild(row.render());
+      tableBody.appendChild(row.render(this.template));
     }
     //
 
