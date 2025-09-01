@@ -18,33 +18,39 @@ class Table {
           })
         )
     );
-    this.template = this.createTemplate();
+    // this.template = this.createTemplate();
   }
 
-  createTemplate() {
-    let template = document.createElement("template");
-    template.id = "template";
-    let rowTemplate = document.createElement("tr");
-    rowTemplate.className = "row"; //
-    template.appendChild(rowTemplate);
-    for (let col of this.headers) {
-      let td = document.createElement("td");
-      td.textContent = "-";
-      rowTemplate.appendChild(td);
-      //, id=`${col}-${this.id}`,textContent=this.data[col]
-    }
-    return template;
-  }
+  // createTemplate() {
+  //   let template = document.createElement("template");
+  //   template.id = "template";
+  //   let rowTemplate = document.createElement("tr");
+  //   rowTemplate.className = "row"; //
+  //   template.appendChild(rowTemplate);
+  //   for (let col of this.headers) {
+  //     let td = document.createElement("td");
+  //     td.textContent = "-";
+  //     rowTemplate.appendChild(td);
+  //     //, id=`${col}-${this.id}`,textContent=this.data[col]
+  //   }
+  //   return template;
+  // }
 
   render(data = this.rows, search = ["", "", "", ""]) {
     //Отрисовка таблицы
-    document.body.innerHTML = this.template;
+    // document.body.innerHTML = this.template;
+    let template = document.getElementById("template");
+    if (document.getElementById("table")) {
+      document.getElementById("table").remove();
+      document.getElementById("addNew").remove();
+    }
 
     let newRowButton = document.createElement("button");
     (newRowButton.id = "addNew"), (newRowButton.textContent = "добавить");
     document.body.appendChild(newRowButton);
 
     let table = document.createElement("table");
+    table.id = "table";
     document.body.appendChild(table);
 
     this.renderCol(search, table);
@@ -57,7 +63,7 @@ class Table {
     }
 
     for (let row of data) {
-      tableBody.appendChild(row.render(this.template));
+      tableBody.appendChild(row.render());
     }
     //
 
@@ -225,6 +231,7 @@ class Table {
     document.getElementById("saveEdit").addEventListener("click", () => {
       let item = { id: editingRowId };
       for (let col of this.headers) {
+        if (col.sortable == false) continue;
         item[col.key] = document.getElementById(
           col.key + "-" + editingRowId
         ).value;

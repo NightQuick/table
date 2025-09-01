@@ -6,15 +6,38 @@ export class TableRow {
     // const number = data.id;
   }
 
-  render(rowTemplate) {
+  render() {
+    let rowTemplate = document.getElementById("template");
     let template = rowTemplate.content.cloneNode(true);
-    let row = rowTemplate.firstElementChild;
+    let row = template.firstElementChild;
     row.id = `row-${this.id}`;
     let td = row.querySelectorAll("td"); //, id=,
-    this.columns.forEach(col, (i) => {
+    let i = 0;
+    this.columns.forEach((col) => {
+      if (col == undefined) {
+        col = "id";
+      }
       td[i].id = `${col}-${this.id}`;
-      td[i].textContent = this.data[col];
+      if (col != "name") {
+        td[i].textContent += this.data[col];
+      }
+      if (col == "name") {
+        let buttonEdit = document.createElement("button");
+        buttonEdit.className = "edit";
+        buttonEdit.id = "buttonEdit" + this.id;
+        let buttonX = td[i].lastElementChild;
+        buttonX.className = "x";
+        buttonX.id = "buttonX" + this.id;
+        td[i].textContent = this.data[col];
+        let buttons = [buttonEdit, buttonX];
+        buttons.forEach((button) => {
+          td[i].appendChild(button);
+        });
+      }
+
+      i++;
     });
+    return row;
   }
 
   // render() {
