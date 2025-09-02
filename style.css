@@ -34,7 +34,7 @@ td {
  {
     position: absolute;
     right: 10px;
-    background-image:image-set(url(images/x.png));
+    background-image:image-set(url(images/x.svg));
     background-size: cover;
     width: 10px;
     height: 10px;
