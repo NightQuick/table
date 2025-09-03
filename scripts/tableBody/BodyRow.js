@@ -11,7 +11,7 @@ export class TableRow {
     const template = document.getElementById('template').content.cloneNode(true);
     const row = template.firstElementChild;
     row.id = `row-${this.id}`;
-    const td = row.querySelectorAll('td'); //, id=,
+    const td = row.querySelectorAll('td');
     let i = 0;
     this.columns.forEach((col) => {
       if (col == undefined) {

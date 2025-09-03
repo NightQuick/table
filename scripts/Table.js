@@ -1,4 +1,4 @@
-import { TableRow } from './Row.js';
+import { TableRow } from './tableBody/BodyRow.js';
 
 export class Table {
   constructor(headers = [], data) {
@@ -7,7 +7,6 @@ export class Table {
     this.sortCache = '';
     this.editing = true;
     this.data = data;
-    let columns;
     this.rows = data.map(
       (item) =>
         new TableRow(
@@ -37,7 +36,6 @@ export class Table {
 
   render(data = this.rows, search = ['', '', '', '']) {
     //Отрисовка таблицы
-    // document.body.innerHTML = this.template;
     const template = document.getElementById('template');
 
     if (document.getElementById('table')) {
