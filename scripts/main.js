@@ -128,5 +128,5 @@ export const data = [
   }
 ];
 import { Table } from './Table.js';
-let table = new Table(headers, data);
+export let table = new Table(headers, data);
 table.render();

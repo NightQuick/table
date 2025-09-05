@@ -1,62 +1,20 @@
-export class TableRow {
-  constructor(data, columns) {
+import { BodyElement } from './BodyElement.js';
+
+export class BodyRow {
+  constructor(data, cols) {
+    this.cols = cols;
     this.id = data.id;
-    this.data = data;
-    this.columns = columns;
-    // const number = data.id;
-    // this.events = events;
+    data = Object.entries(data);
+    this.data = data.map((elem) => new BodyElement(this.id, elem));
   }
-
-  render() {
-    const template = document.getElementById('template').content.cloneNode(true);
-    const row = template.firstElementChild;
-    row.id = `row-${this.id}`;
-    const td = row.querySelectorAll('td');
-    let i = 0;
-    this.columns.forEach((col) => {
-      if (col == undefined) {
-        col = 'id';
+  getValue(colName) {
+    for (let elem of this.data) {
+      if (elem.data[0] == colName) {
+        return elem.data[1];
       }
-      td[i].id = `${col}-${this.id}`;
-
-      if (col != 'name') {
-        td[i].textContent += this.data[col];
-      }
-
-      if (col == 'name') {
-        const buttonEdit = td[i].firstElementChild;
-        buttonEdit.className = 'edit';
-        buttonEdit.id = 'buttonEdit' + this.id;
-
-        const buttonX = td[i].lastElementChild;
-        buttonX.className = 'x';
-        buttonX.id = 'buttonX' + this.id;
-        td[i].textContent = this.data[col];
-        const buttons = [buttonEdit, buttonX];
-        buttons.forEach((button) => {
-          td[i].appendChild(button);
-        });
-      }
-
-      i++;
-    });
-    return row;
+    }
   }
 
-  getValue(columnName) {
-    return this.data[columnName];
-  }
-
-  setValue(columnName, value) {
-    this.data[columnName] = value;
-  }
-
-  contains(searchBy, searchStr) {
-    if (!searchStr) return true;
-    if (searchBy == undefined) searchBy = this.id;
-    const value = this.getValue(searchBy);
-    return value && value.toString().toLowerCase().includes(searchStr.toLowerCase());
-  }
   static compare(a, b, sortBy) {
     const valA = a.getValue(sortBy);
     const valB = b.getValue(sortBy);
@@ -64,28 +22,55 @@ export class TableRow {
     if (valA > valB) return 1;
     if (valA == valB) return 0;
   }
-  edit(rowToEditId) {
-    const row = document.getElementById(`row-${rowToEditId}`);
-    for (let col of this.columns) {
-      if (col == undefined) continue;
-      let text = document.getElementById(col + '-' + rowToEditId).textContent;
-      text = text.replace('ex', '');
-      const textCell = document.getElementById(`${col}-${rowToEditId}`),
-        textBox = document.createElement('textarea');
 
-      textCell.innerHTML = '';
-      textCell.id = '';
-      textBox.id = col + '-' + rowToEditId;
-      textBox.textContent = text;
+  contains(searchBy, searchStr) {
+    if (!searchStr) return true;
+    const value = this.getValue(searchBy);
+    return value && value.toString().toLowerCase().includes(searchStr.toLowerCase());
+  }
 
-      textCell.appendChild(textBox);
+  addNew(newRowId) {
+    const row = document.createElement('tr');
+    for (elem of this.data) {
+      if (elem.data[0] == 'id') {
+        continue;
+      }
+      const textCell = elem.render('textarea');
       row.appendChild(textCell);
     }
-    const Cell = document.createElement('cd'),
+    return row;
+  }
+
+  edit(rowToEditId) {
+    const row = document.getElementById(`row-${rowToEditId}`);
+
+    for (let elem of this.data) {
+      if (elem.data[0] == 'id') {
+        continue;
+      }
+      let text = elem.data[1];
+      text = text.replace('ex', '');
+      document.getElementById(elem.data[0] + '-' + rowToEditId).remove();
+      const textCell = elem.render('textarea');
+
+      row.appendChild(textCell);
+    }
+
+    const Cell = document.createElement('td'),
       saveButton = document.createElement('button');
     saveButton.id = 'saveEdit';
     saveButton.textContent = 'Сохранить';
     Cell.appendChild(saveButton);
     row.appendChild(Cell);
+  }
+
+  render() {
+    const row = document.createElement('tr');
+    row.id = 'row-' + this.id;
+    row.className = 'row';
+    for (let elem of this.data) {
+      row.appendChild(elem.render());
+    }
+    return row;
   }
 }
